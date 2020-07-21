@@ -2,6 +2,7 @@
   "name": "groundwork",
   "description": "Scaffold out any project quickly",
   "version": "0.1.0",
+  "repository": "aniftyco/groundwork",
   "author": {
     "name": "Nifty Development, LLC",
     "email": "support@aniftyco.com",
