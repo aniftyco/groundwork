@@ -3,6 +3,7 @@
   "description": "Scaffold out any project quickly",
   "version": "0.1.0",
   "repository": "aniftyco/groundwork",
+  "bin": "lib/bin.js",
   "author": {
     "name": "Nifty Development, LLC",
     "email": "support@aniftyco.com",
@@ -21,7 +22,32 @@
   "files": [
     "lib"
   ],
-  "bin": "lib/bin.js",
+  "eslintConfig": {
+    "extends": "nifty",
+    "rules": {
+      "@typescript-eslint/no-explicit-any": "off",
+      "@typescript-eslint/explicit-function-return-type": "off",
+      "@typescript-eslint/no-inferrable-types": "off"
+    }
+  },
+  "prettier": {
+    "singleQuote": true
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "moduleFileExtensions": [
+      "ts",
+      "js"
+    ],
+    "transform": {
+      "^.+\\.ts$": "ts-jest"
+    },
+    "globals": {
+      "ts-jest": {
+        "tsConfig": "./tests/tsconfig.json"
+      }
+    }
+  },
   "devDependencies": {
     "@types/chalk": "^2.2.0",
     "@types/jest": "^26.0.5",
