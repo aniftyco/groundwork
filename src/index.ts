@@ -29,9 +29,9 @@ export class Groundwork {
 
   private async getDefaultBranch(src: string): Promise<string> {
     try {
-      const { data: release } = await this.client.request(`GET /repos/${src}`);
+      const { data: repo } = await this.client.request(`GET /repos/${src}`);
 
-      return release.default_branch;
+      return repo.default_branch;
     } catch (err) {
       throw err;
     }
