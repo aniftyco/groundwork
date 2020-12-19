@@ -8,7 +8,7 @@
 npx groundwork org/repo path/
 ```
 
-When first ran, this will fetch and cache `$CACHE/org/repo/master.tar.gz` tarball and extract it to `$PWD/path/`.
+When first ran, this will fetch and cache `$CACHE/org/repo/{version}.tar.gz` tarball and extract it to `$PWD/path/`. If there are no tagged releases, Groundwork will fallback to the default branch of the repo.
 
 You can pass a hash to the template to specify a commit/branch/tag to scaffold from, for example
 
