@@ -4,6 +4,7 @@
   "version": "0.1.0",
   "repository": "aniftyco/groundwork",
   "bin": "lib/bin.js",
+  "main": "lib/index.js",
   "author": {
     "name": "Nifty Development, LLC",
     "email": "support@aniftyco.com",
