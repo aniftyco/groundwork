@@ -1,9 +1,11 @@
 {
   "name": "groundwork",
   "description": "Scaffold out any project quickly",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "repository": "aniftyco/groundwork",
-  "bin": "lib/bin.js",
+  "bin": {
+    "groundwork": "lib/bin.js"
+  },
   "main": "lib/index.js",
   "author": {
     "name": "Nifty Development, LLC",
