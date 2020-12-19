@@ -18,6 +18,7 @@ const {
 
   const spinner = ora(`Fetching ${chalk.cyan(src)}...`).start();
 
+  await groundwork.parse();
   await groundwork.fetch();
 
   spinner.succeed();
