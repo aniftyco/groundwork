@@ -1,35 +1,54 @@
-import { homedir } from 'os';
-import { join, dirname } from 'path';
-import { parse } from 'url';
-import { existsSync, createWriteStream } from 'fs';
-import { get as download } from 'https';
 import { Octokit } from '@octokit/core';
+import envPaths from 'env-paths';
+import { existsSync } from 'fs';
+import { writeFile } from 'fs/promises';
 import mkdirp from 'mkdirp';
+import { dirname, join } from 'path';
 import tar from 'tar';
+import { parse } from 'url';
 
 export class Groundwork {
-  private client: Octokit = new Octokit();
+  private cacheDir = envPaths('groundwork', { suffix: 'nodejs' }).cache;
+  private client: Octokit;
+  private owner: string;
+  private repo: string;
+  private ref: string;
   private tarFile: string;
-  private tarUrl: string;
-  private cacheDir: string;
 
-  constructor(private src: string, private dest: string, private force = false) {
-    this.cacheDir = join(homedir(), '.groundwork');
+  constructor(private src: string, private dest: string, private options = { force: false, auth: null }) {
+    this.client = new Octokit({ auth: options.auth });
+
+    const { pathname, hash } = parse(this.src);
+    const [owner, repo] = pathname.split('/');
+
+    this.owner = owner;
+    this.repo = repo;
+    this.ref = hash ? hash.slice(1) : null;
   }
 
-  private async getLatestRelease(src: string): Promise<string> {
+  private async getRef(): Promise<string> {
+    if (this.ref) {
+      return this.ref;
+    }
+
     try {
-      const { data: release } = await this.client.request(`GET /repos/${src}/releases/latest`);
+      const { data: release } = await this.client.request(`GET /repos/{owner}/{repo}/releases/latest`, {
+        owner: this.owner,
+        repo: this.repo,
+      });
 
       return release.tag_name;
     } catch (err) {
-      return this.getDefaultBranch(src);
+      return this.getDefaultBranch();
     }
   }
 
-  private async getDefaultBranch(src: string): Promise<string> {
+  private async getDefaultBranch(): Promise<string> {
     try {
-      const { data: repo } = await this.client.request(`GET /repos/${src}`);
+      const { data: repo } = await this.client.request(`GET /repos/{owner}/{repo}`, {
+        owner: this.owner,
+        repo: this.repo,
+      });
 
       return repo.default_branch;
     } catch (err) {
@@ -37,36 +56,28 @@ export class Groundwork {
     }
   }
 
-  public async parse() {
-    const { pathname: repo, hash: branch } = parse(this.src);
-    const release = await this.getLatestRelease(repo);
-    const hash = (branch || `#${release}`).slice(1);
+  public async fetch(): Promise<void> {
+    const ref = await this.getRef();
+    this.tarFile = join(this.cacheDir, this.owner, this.repo, `${ref}.tar.gz`);
 
-    this.tarFile = join(this.cacheDir, repo, `${hash}.tar.gz`);
-    this.tarUrl = `https://codeload.github.com/${repo}/tar.gz/${hash}`;
-  }
-
-  public async fetch() {
-    if (!existsSync(this.tarFile) || this.force) {
-      return new Promise((resolve, reject) => {
-        download(this.tarUrl, async (response) => {
-          if (response.statusCode >= 400) {
-            return reject(response);
-          }
-
-          await mkdirp(dirname(this.tarFile));
-
-          const stream = createWriteStream(this.tarFile).on('finish', resolve);
-
-          response.pipe(stream);
-        }).on('error', reject);
+    if (!existsSync(this.tarFile) || this.options.force) {
+      const res = await this.client.request('GET /repos/{owner}/{repo}/tarball/{ref}', {
+        owner: this.owner,
+        repo: this.repo,
+        ref: this.ref,
       });
+
+      if (res.status >= 400) {
+        throw new Error(JSON.stringify(res.data));
+      }
+
+      await mkdirp(dirname(this.tarFile));
+      await writeFile(this.tarFile, Buffer.from(res.data as any));
     }
   }
 
-  public async extract() {
+  public async extract(): Promise<void> {
     await mkdirp(this.dest);
-
     await tar.extract({ strip: 1, file: this.tarFile, cwd: this.dest });
   }
 }
