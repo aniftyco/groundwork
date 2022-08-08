@@ -1,7 +1,7 @@
 {
   "name": "groundwork",
   "description": "Scaffold out any project quickly",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "repository": "aniftyco/groundwork",
   "bin": {
     "groundwork": "dist/bin.js"
