@@ -1,13 +1,19 @@
 {
   "compilerOptions": {
-    "target": "es5",
-    "lib": ["esnext", "esnext.asynciterable"],
     "module": "commonjs",
-    "moduleResolution": "node",
+    "target": "es6",
     "esModuleInterop": true,
-    "rootDir": "./src",
-    "outDir": "./lib",
-    "types": ["node"]
+    "removeComments": true,
+    "preserveConstEnums": true,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "sourceMap": true,
+    "pretty": true,
+    "strict": false,
+    "declaration": true,
+    "baseUrl": "./src",
+    "outDir": "./dist"
   },
-  "include": ["src/**/*"]
+  "include": ["src/**/*.ts"],
+  "exclude": ["node_modules", "**/*.d.ts"]
 }
